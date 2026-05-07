@@ -1,24 +1,20 @@
 package ar.edu.unahur.obj2.marcas;
 
+import ar.edu.unahur.obj2.carpas.Carpa;
+
 public class JarraLoca {
-    private Marca marca;
     private Double litros;
+    private Marca marca;
+    private Carpa carpa;
 
-    public JarraLoca(Marca marca, Double litros) {
-        this.marca = marca;
+    public JarraLoca(Double litros, Marca marca, Carpa carpa) {
         this.litros = litros;
+        this.marca = marca;
+        this.carpa = carpa;
     }
 
-    public Marca getMarca() {
-        return marca;
-    }
-
-    public Double getLitros() {
-        return litros;
-    }
-
-    public Double cantidadDeAlcohol(){
-        return litros * marca.graduacion() / 100;
-    }
- 
+    public Double getLitros() { return litros; }
+    public Marca getMarca() { return marca; }
+    public Carpa getCarpa() { return carpa; }
+    public Double cantidadDeAlcohol() { return litros * marca.graduacion() / 100; }
 }

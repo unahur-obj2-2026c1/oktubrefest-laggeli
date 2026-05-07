@@ -4,13 +4,10 @@ import ar.edu.unahur.obj2.pais.Pais;
 
 public class Roja extends Marca {
 
-    public Roja(Double gramosLupulo, Pais pais ){
-        super(gramosLupulo, pais);
-    }
+    public Roja(Double gramosDeLupulo, Pais pais) { super(gramosDeLupulo, pais); }
 
     @Override
     public Double graduacion() {
-        return Double.min(Reglamentacion.getGraduacion(), 2 * gramosLupulo) * 1.25;
+        return (Double.min(Reglamentacion.getGraduacion(), this.gramosDeLupulo * 2)) * 1.25;
     }
-
 }

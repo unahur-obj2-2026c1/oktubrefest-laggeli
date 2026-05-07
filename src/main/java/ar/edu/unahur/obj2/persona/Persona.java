@@ -1,7 +1,10 @@
 package ar.edu.unahur.obj2.persona;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ar.edu.unahur.obj2.carpas.Carpa;
 import ar.edu.unahur.obj2.marcas.JarraLoca;
@@ -10,80 +13,98 @@ import ar.edu.unahur.obj2.pais.Pais;
 
 public class Persona {
     private Double peso;
-    private List<JarraLoca> jarrasTomadas = new ArrayList<JarraLoca>();
-    private Boolean leGustaLaMusica;
-    private Integer nivelAguante;
+    private List<JarraLoca> jarrasCompradas = new ArrayList<>();
+    private Boolean leGustaLaMusicaTradicional;
+    private Integer aguante;
     private List<Marca> marcasFavoritas;
     private Pais nacionalidad;
 
-    public Persona(Double peso, Boolean leGustaLaMusica, Integer nivelAguante,Pais nacionalidad) {
-        this.peso = peso;
-        this.leGustaLaMusica = leGustaLaMusica;
-        this.nivelAguante = nivelAguante;
+    public Persona(Integer aguante, Boolean leGustaLaMusicaTradicional, Pais nacionalidad, Double peso) {
+        this.aguante = aguante;
+        this.leGustaLaMusicaTradicional = leGustaLaMusicaTradicional;
         this.nacionalidad = nacionalidad;
+        this.peso = peso;
     }
 
-    public Boolean estaEbria(){
-        return jarrasTomadas.stream().mapToDouble(j -> j.getLitros()).sum() * peso > nivelAguante;
+    public Double alcoholIngerido() {
+        return jarrasCompradas.stream().mapToDouble(JarraLoca::cantidadDeAlcohol).sum();
     }
-    
-    public Boolean leGusta(Marca marca){
-        return switch (nacionalidad.nombre()){
-            case "Belgica" -> marca.getGramosLupulo() > 4;
+
+    public Boolean estaEbria() { return alcoholIngerido() > aguante; }
+
+    public Boolean leGusta(Marca marca) {
+        return switch (nacionalidad.nombre()) {
+            case "Belgica" -> marca.getGramosDeLupulo() > 4;
             case "Republica Checa" -> marca.graduacion() > 8;
-            default -> Boolean.TRUE; //aleman le gustan todas al igual que cualquier otro
-        };
-    }
-   
-    public Pais getNacionalidad() {
-        return nacionalidad;
-    }
-
-    public Double alcoholIngerido(){
-        return jarrasTomadas.stream().mapToDouble(j -> j.cantidadDeAlcohol()).sum();
-    }
-
-    public Boolean quiereEntrarA( Carpa unaCarpa){
-        return leGustaLaCervezaDeLaCarpa(unaCarpa) 
-        && coincideEnGustosMusicales(unaCarpa)
-        && evaluarSegunNacionalidad(unaCarpa);
-    }
-
-    public Boolean leGustaLaCervezaDeLaCarpa(Carpa unaCarpa){
-        return this.leGusta( unaCarpa.getSoyMarcaPreferida() );
-    }
-
-    public Boolean coincideEnGustosMusicales(Carpa unaCarpa){
-        return this.leGustaLaMusica.equals( unaCarpa.getTienenBandaTradicional() );
-    }
-
-    public Boolean evaluarSegunNacionalidad(Carpa unaCarpa){
-        return switch(nacionalidad.nombre()){
-            case "Alemania" -> unaCarpa.getPersonas().size() % 2 == 0;
             default -> Boolean.TRUE;
         };
     }
 
-    public Boolean puedoEntrar(Carpa unaCarpa){
-        return this.quiereEntrarA(unaCarpa) && unaCarpa.puedeEntrar(this);
+    public void consumirJarra(JarraLoca jarra) { jarrasCompradas.add(jarra); }
+
+    public Boolean quiereEntrar(Carpa carpa) {
+        return leGustaLaCervezaDeLaCarpa(carpa) && coincideEnGustosMusicales(carpa) && evaluarSegunNacionalidad(carpa);
     }
 
-    public void tomarJarra(JarraLoca jarra){
-        jarrasTomadas.add(jarra);
+    public Boolean leGustaLaCervezaDeLaCarpa(Carpa carpa) { return marcasFavoritas.contains(carpa.getMarca()); }
+    
+    public Boolean coincideEnGustosMusicales(Carpa carpa) { return this.leGustaLaMusicaTradicional.equals(carpa.getTieneBandaDeMusica()); }
+    
+    public Boolean evaluarSegunNacionalidad(Carpa carpa) { 
+        return switch(nacionalidad.nombre()){
+            case "Alemania" -> carpa.getPersonasAdentro().size() % 2 == 0;
+            default -> Boolean.TRUE;
+        };
     }
 
-    public boolean esPatriota (){
-        return jarrasTomadas.stream().allMatch(j -> j.getMarca().getPais().nombre().equals(nacionalidad.nombre()));
+    public Boolean seLePermiteEntrar(Carpa carpa) { return quiereEntrar(carpa) && carpa.permiteIngresar(this); }
+
+    public Boolean comproTodasJarrasDeUnLitro() { return jarrasCompradas.stream().allMatch(j -> j.getLitros() > 1); }
+
+    public Boolean esPatriota() { return jarrasCompradas.stream().allMatch(j -> j.getMarca().getPais().equals(nacionalidad)); }
+
+    public List<Marca> marcasCompradas() { return jarrasCompradas.stream().map(JarraLoca::getMarca).toList(); }
+
+    public Set<Marca> marcasEnComun(Persona persona) {
+        return this.marcasCompradas().stream()
+        .filter(marca -> persona.marcasCompradas().contains(marca))
+        .collect(Collectors.toSet());
     }
 
-    public Boolean ebrioEmpedernido(){
-        return this.estaEbria() && jarrasTomadas.stream().allMatch(j -> j.getLitros() > 1);
+    public Set<Marca> marcasEnDiferencia(Persona otraPersona) {
+        Set<Marca> diferencias = new HashSet<>();
+        diferencias.addAll (
+            this.marcasCompradas().stream().filter(marca ->
+            !otraPersona.marcasCompradas().contains(marca)).toList()
+        );
+
+        diferencias.addAll (
+            otraPersona.marcasCompradas().stream().filter(marca ->
+            !this.marcasCompradas().contains(marca)).toList()
+        );
+        return diferencias;
     }
 
-    //Falta el 12
-
-
-    public boolean personaConMismaNacionalidad(Persona unaPersona){
-        return unaPersona.nacionalidad.equals(nacionalidad);
+    public Boolean sonCompatibles(Persona persona) {
+        Integer coincidencias = marcasEnComun(persona).size();
+        Integer diferencias = marcasEnDiferencia(persona).size();
+        return coincidencias > diferencias;
     }
+
+    public Boolean leSirvieron(Carpa carpa) { return jarrasCompradas.stream().allMatch(j -> j.getCarpa() == carpa); }
+
+    public Boolean estaEntrandoEnElVicio() {
+        Boolean flag = true;
+        
+        for (int i = 1; i < jarrasCompradas.size(); i++) {
+            JarraLoca anterior = jarrasCompradas.get(i - 1);
+            JarraLoca actual = jarrasCompradas.get(i);
+
+            if (actual.getLitros() < anterior.getLitros()) { flag = false; }
+        }
+
+        return flag;
+    }
+
+    public Pais getNacionalidad() { return nacionalidad; }
 }
