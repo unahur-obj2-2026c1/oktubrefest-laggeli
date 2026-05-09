@@ -8,18 +8,15 @@ public abstract class Marca {
     protected Pais pais;
     protected Double precio;
 
-    public Marca(Double gramosDeLupulo, Pais pais) {
+    public Marca(Double gramosDeLupulo, Pais pais, Double precio) {
         this.gramosDeLupulo = gramosDeLupulo;
         this.pais = pais;
+        this.precio = precio;
     }
 
     public abstract Double graduacion();
 
-    public Double precioDeVenta(Carpa carpa) { 
-        return getPrecio() + ((getPrecio() * 30) / 100); /* + 
-        recargoExtraPorCantidad(carpa) +
-        recargoExtraPorEbriedad(carpa); */ // TODO: volverrr
-    }
+    public Double precioDeVenta(Carpa carpa) { return getPrecio() * (1 + carpa.getRecargo().recargo(carpa)); }
 
     public Double getGramosDeLupulo() { return gramosDeLupulo; }
 

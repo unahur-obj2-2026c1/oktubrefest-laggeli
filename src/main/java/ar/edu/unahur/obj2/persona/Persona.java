@@ -1,6 +1,7 @@
 package ar.edu.unahur.obj2.persona;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,16 +20,15 @@ public class Persona {
     private List<Marca> marcasFavoritas;
     private Pais nacionalidad;
 
-    public Persona(Integer aguante, Boolean leGustaLaMusicaTradicional, Pais nacionalidad, Double peso) {
+    public Persona(Integer aguante, Boolean leGustaLaMusicaTradicional, Pais nacionalidad, Double peso, List<Marca> marcasFavoritas) {
         this.aguante = aguante;
         this.leGustaLaMusicaTradicional = leGustaLaMusicaTradicional;
         this.nacionalidad = nacionalidad;
         this.peso = peso;
+        this.marcasFavoritas = marcasFavoritas;
     }
 
-    public Double alcoholIngerido() {
-        return jarrasCompradas.stream().mapToDouble(JarraLoca::cantidadDeAlcohol).sum();
-    }
+    public Double alcoholIngerido() { return jarrasCompradas.stream().mapToDouble(JarraLoca::cantidadDeAlcohol).sum(); }
 
     public Boolean estaEbria() { return alcoholIngerido() > aguante; }
 
@@ -91,7 +91,7 @@ public class Persona {
         return coincidencias > diferencias;
     }
 
-    public Boolean leSirvieron(Carpa carpa) { return jarrasCompradas.stream().allMatch(j -> j.getCarpa() == carpa); }
+    public Boolean leSirvieron(Carpa carpa) { return !jarrasCompradas.isEmpty() && jarrasCompradas.stream().allMatch(j -> j.getCarpa() == carpa); }
 
     public Boolean estaEntrandoEnElVicio() {
         Boolean flag = true;
@@ -106,5 +106,13 @@ public class Persona {
         return flag;
     }
 
+    public Double gastoTotal() { return jarrasCompradas.stream().mapToDouble(j -> j.getPrecio()).sum(); }
+
+    public JarraLoca jarraMasCaraComprada() { return jarrasCompradas.stream().max(Comparator.comparing(JarraLoca::getPrecio)).get(); }
+    
+    public List<JarraLoca> getJarrasCompradas() { return jarrasCompradas; }
+
+    public List<Marca> getMarcasFavoritas() { return marcasFavoritas; }
+    
     public Pais getNacionalidad() { return nacionalidad; }
 }

@@ -7,21 +7,27 @@ import ar.edu.unahur.obj2.marcas.JarraLoca;
 import ar.edu.unahur.obj2.marcas.Marca;
 import ar.edu.unahur.obj2.pais.Pais;
 import ar.edu.unahur.obj2.persona.Persona;
+import ar.edu.unahur.obj2.recargos.RecargoStrategy;
 
 public class Carpa { 
     private Integer capacidad;
     private Boolean tieneBandaDeMusica;
     private Marca marca;
     private List<Persona> personasAdentro = new ArrayList<>();
+    private RecargoStrategy recargo;
 
-    public Carpa(Integer capacidad, Marca marca, Boolean tieneBandaDeMusica) {
+    public Carpa(Integer capacidad, Marca marca, Boolean tieneBandaDeMusica, RecargoStrategy recargo) {
         this.capacidad = capacidad;
         this.marca = marca;
         this.tieneBandaDeMusica = tieneBandaDeMusica;
+        this.recargo = recargo;
     }
 
+    public Double precioDeVenta() { return marca.precioDeVenta(this); }
+
     public void venderJarra(Double litros, Persona persona) { 
-        if (personasAdentro.contains(persona)) { persona.consumirJarra(new JarraLoca(litros, marca, this)); }
+        Double precio = precioDeVenta() * litros;
+        if (personasAdentro.contains(persona)) { persona.consumirJarra(new JarraLoca(litros, marca, this, precio)); }
         else { throw new RuntimeException("La persona no está en la carpa."); }
     }
 
@@ -50,4 +56,6 @@ public class Carpa {
     public Marca getMarca() { return marca; }
 
     public List<Persona> getPersonasAdentro() { return personasAdentro; }
+
+    public RecargoStrategy getRecargo() { return recargo; }
 }

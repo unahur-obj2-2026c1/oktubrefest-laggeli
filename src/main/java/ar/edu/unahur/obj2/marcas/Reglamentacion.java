@@ -6,7 +6,7 @@ public class Reglamentacion {
 
     private Reglamentacion() {}
 
-    public Reglamentacion getInstance() {
+    public static Reglamentacion getInstance() {
         if (instance == null) { instance = new Reglamentacion(); }
         return instance;
     }

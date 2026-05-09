@@ -1,24 +1,11 @@
-package ar.edu.unahur.obj2.Recargos;
+package ar.edu.unahur.obj2.recargos;
 
 import ar.edu.unahur.obj2.carpas.Carpa;
 
-public class RecargoCantidadStrategy implements EstrategiaRecargo {
-
+public class RecargoCantidadStrategy implements RecargoStrategy {
     @Override
     public Double recargo(Carpa carpa) {
-        Double recargo;
-        if (carpa.getPersonasAdentro().size() >= (carpa.getCapacidad() / 2)) { recargo = ((getPrecio() * 40) / 100); }
-        else { recargo = ((getPrecio() * 25) / 100); }
-        return recargo;
-    } // TODO: volverrrr
-    
-}
-
-/*
-    public Double recargoExtraPorEbriedad(Carpa carpa) {
-        Double recargo;
-        if (carpa.getPersonasAdentro().size() >= (carpa.getCapacidad() / 2)) { recargo = ((getPrecio() * 50) / 100); }
-        else { recargo = ((getPrecio() * 20) / 100); }
-        return recargo;
+        if (carpa.getPersonasAdentro().size() >= (carpa.getCapacidad() / 2)) { return 0.40; }
+        return 0.25;
     } 
-*/
+}
